@@ -4,3 +4,13 @@
   padding: 2rem;
   text-align: center;
 }
+
+.editor {
+  border: 1px solid #ccc;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  min-height: 100px;
+  width: 40vw;
+  min-width: 500px;
+  text-align: left;
+}

@@ -1,27 +1,26 @@
 import { useEffect, useRef } from "react"
-
-const debounce = (callback: () => void, delay: number) => {
-  let timeout: number
-
-  return () => {
-    clearTimeout(timeout)
-    timeout = setTimeout(() => callback(), delay)
-  }
-}
+import { debounce } from "../utils/debounce"
+import { postNote } from "../utils/api"
+import { getSessionText, setSessionText } from "../utils/session"
 
 export const Editor = () => {
   const editorRef = useRef<HTMLDivElement>(null)
-
+  
   useEffect(() => {
-    if (editorRef.current) {
-      editorRef.current.focus()
+    const editor = editorRef.current
+    if (editor) {
+      editor.focus()
+      editor.innerText = getSessionText()
     }
+
+
   }, [])
 
   const handleChange = debounce(() => {
-    const target = editorRef.current as HTMLDivElement
-    const text = target.innerText
-    console.log(text)
+    const editor = editorRef.current as HTMLDivElement
+    const text = editor.innerText
+    setSessionText(text)
+    postNote(text)
   }, 1000)
 
   useEffect(() => {

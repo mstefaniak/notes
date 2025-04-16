@@ -8,3 +8,9 @@ export const placeCaretAtEnd = (el: HTMLElement) => {
     sel.removeAllRanges()
     sel.addRange(range)
   }
+
+export const getCursorPosition = () => {
+  const selection = window.getSelection();
+  const range = selection?.getRangeAt(0);
+  return range?.getBoundingClientRect();
+};

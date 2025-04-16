@@ -3,17 +3,21 @@ import { debounce } from "../utils/debounce";
 import { postNote } from "../utils/api";
 import { getSessionText, setSessionText } from "../utils/session";
 import { UsersDialog } from "./UsersDialog";
+import { getCursorPosition, placeCaretAtEnd } from "../utils/dom";
 
 export const Editor = () => {
   const editorRef = useRef<HTMLDivElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const [isOpen, setIsOpen] = useState(false);
+
+  // initialize the editor
   useEffect(() => {
     const editor = editorRef.current;
     if (editor) {
       editor.focus();
       editor.innerText = getSessionText();
+      placeCaretAtEnd(editor);
     }
   }, []);
 
@@ -25,19 +29,14 @@ export const Editor = () => {
   }, 1000);
 
   useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // close on Esc press
+      if (event.key === "Escape") {
+        setIsOpen(false);
+      }
+    };
+
     if (isOpen) {
-      dialogRef.current?.querySelectorAll("div")[0].focus();
-
-      const handleKeyDown = (e: KeyboardEvent) => {
-        // close on Esc press
-        if (e.key === "Escape") {
-          setIsOpen(false);
-        }
-
-        if (e.key === "ArrowUp" || e.key === "ArrowDown") {
-          // TODO: implement navigation through the list
-        }
-      };
       window.addEventListener("keydown", handleKeyDown);
     }
 
@@ -46,21 +45,24 @@ export const Editor = () => {
     };
   }, [isOpen]);
 
-  const handleKeyDown = (e: Event) => {
-    const event = e as KeyboardEvent;
+  const handleKeyPress = (event: KeyboardEvent) => {
     if (event.key === "@") {
-      // get the current position of the cursor
-      const selection = window.getSelection();
-      const range = selection?.getRangeAt(0);
-      const currentPosition = range?.getBoundingClientRect();
+      const currentPosition = getCursorPosition();
       if (currentPosition) {
-        setPosition(currentPosition);
+        const { top, left } = currentPosition;
+        setPosition({ top: top + 16, left });
         setIsOpen(true);
+      }
+    }
 
-        // focus first element
-        const firstElement = dialogRef.current?.querySelector("div");
-        if (firstElement) {
-          firstElement.focus();
+    // close on back button press and the @ has been removed from last chunk
+    if (event.key === "Backspace") {
+      const editor = editorRef.current;
+      if (editor) {
+        const chunks = editor.innerText.split(/\s+/);
+        const lastChunk = chunks?.[chunks.length - 1] ?? "";
+        if (lastChunk.trim() === "" || !lastChunk.includes("@")) {
+          setIsOpen(false);
         }
       }
     }
@@ -70,12 +72,12 @@ export const Editor = () => {
     const editor = editorRef.current;
     if (editor) {
       editor.addEventListener("input", handleChange);
-      editor.addEventListener("keydown", handleKeyDown);
+      editor.addEventListener("keyup", handleKeyPress);
     }
 
     return () => {
       editor?.removeEventListener("input", handleChange);
-      editor?.removeEventListener("keydown", handleKeyDown);
+      editor?.removeEventListener("keyup", handleKeyPress);
     };
   }, [handleChange]);
 

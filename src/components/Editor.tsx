@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { debounce } from "../utils/debounce";
 import { postNote } from "../utils/api";
 import { getSessionText, setSessionText } from "../utils/session";
-import { UsersDialog } from "./UsersDialog";
+import { User, UsersDialog } from "./UsersDialog";
 import { getCursorPosition, placeCaretAtEnd } from "../utils/dom";
 
 export const Editor = () => {
@@ -10,6 +10,7 @@ export const Editor = () => {
   const dialogRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const [isOpen, setIsOpen] = useState(false);
+  const [searchPhrase, setSearchPhrase] = useState("");
 
   // initialize the editor
   useEffect(() => {
@@ -28,36 +29,26 @@ export const Editor = () => {
     postNote(text);
   }, 1000);
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      // close on Esc press
-      if (event.key === "Escape") {
-        setIsOpen(false);
-      }
-    };
+  const handleKeyPress = (event: KeyboardEvent) => {
+    const editor = editorRef.current;
+    const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-    if (isOpen) {
-      window.addEventListener("keydown", handleKeyDown);
+    if (alphabet.includes(event.key)) {
+      setSearchPhrase((prevState) => `${prevState}${event.key}`);
     }
 
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isOpen]);
-
-  const handleKeyPress = (event: KeyboardEvent) => {
     if (event.key === "@") {
       const currentPosition = getCursorPosition();
       if (currentPosition) {
         const { top, left } = currentPosition;
-        setPosition({ top: top + 16, left });
+        setPosition({ top: top + 18, left });
         setIsOpen(true);
+        setSearchPhrase("");
       }
     }
 
     // close on back button press and the @ has been removed from last chunk
     if (event.key === "Backspace") {
-      const editor = editorRef.current;
       if (editor) {
         const chunks = editor.innerText.split(/\s+/);
         const lastChunk = chunks?.[chunks.length - 1] ?? "";
@@ -81,14 +72,24 @@ export const Editor = () => {
     };
   }, [handleChange]);
 
+  const handleUserClick = (user: User) => {
+    const editor = editorRef.current;
+    if (editor) {
+      editor.innerHTML = editor.innerHTML.replace(`@${searchPhrase}`, `<a href="${user.id}">${user.name}</a>`);
+      setSearchPhrase("");
+      setIsOpen(false);
+    }
+  };
+
   return (
     <>
       <div className="editor" contentEditable ref={editorRef} />
       <UsersDialog
         ref={dialogRef}
         isOpen={isOpen}
+        onClick={handleUserClick}
         position={position}
-        searchPhrase=""
+        searchPhrase={searchPhrase}
       />
     </>
   );

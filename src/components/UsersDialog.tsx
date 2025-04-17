@@ -1,7 +1,13 @@
 import { ForwardedRef, forwardRef } from "react";
 
+export interface User {
+  id: number;
+  name: string;
+}
+
 interface Props {
   isOpen: boolean;
+  onClick: (user: User) => void;
   position: {
     top: number;
     left: number;
@@ -9,7 +15,7 @@ interface Props {
   searchPhrase: string;
 }
 
-const users = [
+const users: User[] = [
   { id: 1, name: "John Doe" },
   { id: 2, name: "Jane Doe" },
   { id: 3, name: "John Smith" },
@@ -17,7 +23,7 @@ const users = [
 ];
 
 export const UsersDialog = forwardRef(function UsersDialog(
-  { isOpen, position, searchPhrase }: Props,
+  { isOpen, onClick, position, searchPhrase }: Props,
   ref: ForwardedRef<HTMLDivElement>
 ) {
   const visibleUsers = users.filter(
@@ -38,7 +44,7 @@ export const UsersDialog = forwardRef(function UsersDialog(
       }}
     >
       {visibleUsers.map((user, index) => (
-        <div key={user.id} className="user" tabIndex={index}>
+        <div key={user.id} className="user" tabIndex={index} onClick={() => onClick(user)}>
           {user.name}
         </div>
       ))}

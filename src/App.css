@@ -20,7 +20,6 @@
   border: 1px solid #ccc;
   
   border-radius: 0.5rem;
-  width: 120px;
   z-index: 10;
   position: absolute;
   top: 0;
@@ -33,6 +32,7 @@
   margin: 0.5rem;
   border-radius: 0.5rem;
   background-color: #f0f0f0;
+  white-space: nowrap;
 
   &:focus {
     background-color: #e0e0e0;
@@ -42,5 +42,9 @@
   &:hover {
     background-color: #e0e0e0;
   }
+}
+
+.sendButton {
+  margin-top: 10px;
 }
 

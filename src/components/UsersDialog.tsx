@@ -1,13 +1,22 @@
-import { ForwardedRef, forwardRef } from "react";
+import { ForwardedRef, forwardRef, useEffect, useState } from "react";
+import { getUsers } from "../utils/api";
 
 export interface User {
-  id: number;
-  name: string;
+
+  birthdate: number // timestamp
+  email: string
+  first_name: string
+  gender: string
+  last_name: string
+  location: Record<string, string>
+  phone_number: string
+  title: string
+  username: string
 }
 
 interface Props {
   isOpen: boolean;
-  onClick: (user: User) => void;
+  onClick: (userName: string) => void;
   position: {
     top: number;
     left: number;
@@ -15,20 +24,24 @@ interface Props {
   searchPhrase: string;
 }
 
-const users: User[] = [
-  { id: 1, name: "John Doe" },
-  { id: 2, name: "Jane Doe" },
-  { id: 3, name: "John Smith" },
-  { id: 4, name: "Jane Smith" },
-];
-
 export const UsersDialog = forwardRef(function UsersDialog(
   { isOpen, onClick, position, searchPhrase }: Props,
   ref: ForwardedRef<HTMLDivElement>
 ) {
+  const [users, setUsers] = useState<User[]>([])
+
+  useEffect(() => {
+    getUsers().then(fetchedUsers => {
+      setUsers(fetchedUsers)
+    })
+  }, [])
+
   const visibleUsers = users.filter(
-    (user) => user.name.toLowerCase().includes(searchPhrase.toLowerCase()) // TODO: add limit (max 5)
-  );
+    ({ first_name, last_name }) => {
+      const userName = `${first_name} ${last_name}`
+      return userName.includes(searchPhrase.toLowerCase())
+    }
+  ).splice(0, 5)
 
   if (!isOpen) {
     return null;
@@ -43,9 +56,9 @@ export const UsersDialog = forwardRef(function UsersDialog(
         left: position.left,
       }}
     >
-      {visibleUsers.map((user, index) => (
-        <div key={user.id} className="user" tabIndex={index} onClick={() => onClick(user)}>
-          {user.name}
+      {visibleUsers.map(({ username, first_name, last_name}) => (
+        <div key={username} className="user" onClick={() => onClick(username)}>
+          {first_name} {last_name}
         </div>
       ))}
     </div>

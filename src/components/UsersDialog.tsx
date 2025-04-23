@@ -20,7 +20,7 @@ export const UsersDialog = ({
 }: Props) => {
   const users = useGetUsers(searchPhrase, MAX_USERS);
 
-  if (!isOpen) {
+  if (!isOpen || users.length === 0) {
     return null;
   }
 

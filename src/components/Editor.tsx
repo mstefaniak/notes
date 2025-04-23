@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { debounce } from "../utils/debounce";
 import { postNote, putNote } from "../utils/api";
 import { getSessionText, setSessionText } from "../utils/session";
@@ -23,14 +23,17 @@ export const Editor = () => {
     }
   }, []);
 
-  const handleChange = debounce(() => {
-    const editor = editorRef.current;
-    if (editor) {
-      const text = editor.innerText;
-      setSessionText(text);
-      void putNote(currentNoteId, text);
-    }
-  }, 1000);
+  const handleChange = useCallback(
+    debounce(() => {
+      const editor = editorRef.current;
+      if (editor) {
+        const text = editor.innerText;
+        setSessionText(text);
+        void putNote(currentNoteId, text);
+      }
+    }, 2000),
+    []
+  );
 
   const handleKeyPress = (event: KeyboardEvent) => {
     const editor = editorRef.current;
@@ -67,12 +70,12 @@ export const Editor = () => {
   useEffect(() => {
     const editor = editorRef.current;
     if (editor) {
-      editor.addEventListener("input", handleChange);
+      editor.addEventListener("keyup", handleChange);
       editor.addEventListener("keyup", handleKeyPress);
     }
 
     return () => {
-      editor?.removeEventListener("input", handleChange);
+      editor?.removeEventListener("keyup", handleChange);
       editor?.removeEventListener("keyup", handleKeyPress);
     };
   }, [handleChange]);

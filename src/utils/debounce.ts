@@ -1,8 +1,10 @@
 export const debounce = (callback: () => void, delay: number) => {
-  let timeout: number
+  let timeoutId: number
 
   return () => {
-    clearTimeout(timeout)
-    timeout = setTimeout(() => callback(), delay)
+    clearTimeout(timeoutId)
+    timeoutId = setTimeout(() => {
+      callback()
+    }, delay)
   }
 }

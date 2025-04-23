@@ -1,4 +1,4 @@
-import type { Note } from "../hooks/useGetNotes"
+import { Note } from "../types"
 import { getSessionId } from "./session"
 
 const sessionId = getSessionId()
@@ -12,7 +12,7 @@ const sanitizeText = (text: string) => {
   return text.replace(/<[^>]*>?/g, '')
 }
 
-export const postNote = async (text: string): Promise<number> => {
+export const postNote = async (text: string): Promise<Response> => {
   const response = await fetch(`${sessionUrl}notes`, {
     method: 'POST',
     body: JSON.stringify({ body: sanitizeText(text) }),
@@ -23,8 +23,7 @@ export const postNote = async (text: string): Promise<number> => {
     throw new Error('Failed to add a note')
   }
 
-  const data = await response.json()
-  return data.id
+  return response
 }
 
 export const getNotes = async (): Promise<Note[]> => {
@@ -48,11 +47,15 @@ export const putNote = async (id: number, text: string) => {
     body: JSON.stringify({ body: sanitizeText(text) }),
     headers,
   })
-  const data = await response.json()
-  return data
+
+  if (!response.ok) {
+    throw new Error('Failed to update the note')
+  }
+  
+  return response
 }
 
-export const getNote = async (id: number) => {
+export const getNote = async (id: number): Promise<Note> => {
   const response = await fetch(`${sessionUrl}notes/${id}`, { headers })
   const data = await response.json()
   return data.body

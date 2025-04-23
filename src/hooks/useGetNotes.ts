@@ -1,10 +1,6 @@
 import { useEffect, useState } from "react"
 import { getNotes } from "../utils/api"
-
-export interface Note {
-  id: number
-  body: string
-}
+import { Note } from "../types"
 
 export const useGetNotes = () => {
   const [notes, setNotes] = useState<Note[]>([])

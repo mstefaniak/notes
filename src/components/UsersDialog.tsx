@@ -1,18 +1,5 @@
-import { ForwardedRef, forwardRef, useEffect, useState } from "react";
-import { getUsers } from "../utils/api";
-
-export interface User {
-  birthdate: number; // timestamp
-  email: string;
-  first_name: string;
-  gender: string;
-  last_name: string;
-  location: Record<string, string>;
-  phone_number: string;
-  title: string;
-  username: string;
-}
-
+import { useGetUsers } from "../hooks/useGetUsers";
+import { User } from "../types";
 interface Props {
   isOpen: boolean;
   onClick: (user: User) => void;
@@ -23,24 +10,15 @@ interface Props {
   searchPhrase: string;
 }
 
-export const UsersDialog = forwardRef(function UsersDialog(
-  { isOpen, onClick, position, searchPhrase }: Props,
-  ref: ForwardedRef<HTMLDivElement>
-) {
-  const [users, setUsers] = useState<User[]>([]);
+const MAX_USERS = 5;
 
-  useEffect(() => {
-    getUsers().then((fetchedUsers) => {
-      setUsers(fetchedUsers);
-    });
-  }, []);
-
-  const visibleUsers = users
-    .filter(({ first_name, last_name }) => {
-      const userName = `${first_name} ${last_name}`;
-      return userName.includes(searchPhrase.toLowerCase());
-    })
-    .splice(0, 5);
+export const UsersDialog = ({
+  isOpen,
+  onClick,
+  position,
+  searchPhrase,
+}: Props) => {
+  const users = useGetUsers(searchPhrase, MAX_USERS);
 
   if (!isOpen) {
     return null;
@@ -49,17 +27,16 @@ export const UsersDialog = forwardRef(function UsersDialog(
   return (
     <div
       className="usersDialog"
-      ref={ref}
       style={{
         top: position.top,
         left: position.left,
       }}
     >
-      {visibleUsers.map((user) => (
+      {users.map((user) => (
         <div key={user.username} className="user" onClick={() => onClick(user)}>
           {user.first_name} {user.last_name}
         </div>
       ))}
     </div>
   );
-});
+};

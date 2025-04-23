@@ -2,12 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { debounce } from "../utils/debounce";
 import { postNote, putNote } from "../utils/api";
 import { getSessionText, setSessionText } from "../utils/session";
-import { User, UsersDialog } from "./UsersDialog";
+import { UsersDialog } from "./UsersDialog";
 import { getCursorPosition, placeCaretAtEnd } from "../utils/dom";
+import { User } from "../types";
 
 export const Editor = () => {
   const editorRef = useRef<HTMLDivElement>(null);
-  const dialogRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const [isOpen, setIsOpen] = useState(false);
   const [searchPhrase, setSearchPhrase] = useState("");
@@ -104,7 +104,6 @@ export const Editor = () => {
         Send
       </button>
       <UsersDialog
-        ref={dialogRef}
         isOpen={isOpen}
         onClick={handleUserClick}
         position={position}

@@ -2,21 +2,20 @@ import { ForwardedRef, forwardRef, useEffect, useState } from "react";
 import { getUsers } from "../utils/api";
 
 export interface User {
-
-  birthdate: number // timestamp
-  email: string
-  first_name: string
-  gender: string
-  last_name: string
-  location: Record<string, string>
-  phone_number: string
-  title: string
-  username: string
+  birthdate: number; // timestamp
+  email: string;
+  first_name: string;
+  gender: string;
+  last_name: string;
+  location: Record<string, string>;
+  phone_number: string;
+  title: string;
+  username: string;
 }
 
 interface Props {
   isOpen: boolean;
-  onClick: (userName: string) => void;
+  onClick: (user: User) => void;
   position: {
     top: number;
     left: number;
@@ -28,20 +27,20 @@ export const UsersDialog = forwardRef(function UsersDialog(
   { isOpen, onClick, position, searchPhrase }: Props,
   ref: ForwardedRef<HTMLDivElement>
 ) {
-  const [users, setUsers] = useState<User[]>([])
+  const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
-    getUsers().then(fetchedUsers => {
-      setUsers(fetchedUsers)
-    })
-  }, [])
+    getUsers().then((fetchedUsers) => {
+      setUsers(fetchedUsers);
+    });
+  }, []);
 
-  const visibleUsers = users.filter(
-    ({ first_name, last_name }) => {
-      const userName = `${first_name} ${last_name}`
-      return userName.includes(searchPhrase.toLowerCase())
-    }
-  ).splice(0, 5)
+  const visibleUsers = users
+    .filter(({ first_name, last_name }) => {
+      const userName = `${first_name} ${last_name}`;
+      return userName.includes(searchPhrase.toLowerCase());
+    })
+    .splice(0, 5);
 
   if (!isOpen) {
     return null;
@@ -56,9 +55,9 @@ export const UsersDialog = forwardRef(function UsersDialog(
         left: position.left,
       }}
     >
-      {visibleUsers.map(({ username, first_name, last_name}) => (
-        <div key={username} className="user" onClick={() => onClick(username)}>
-          {first_name} {last_name}
+      {visibleUsers.map((user) => (
+        <div key={user.username} className="user" onClick={() => onClick(user)}>
+          {user.first_name} {user.last_name}
         </div>
       ))}
     </div>

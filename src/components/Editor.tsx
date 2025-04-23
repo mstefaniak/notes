@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { debounce } from "../utils/debounce";
-import { postNote } from "../utils/api";
+import { postNote, putNote } from "../utils/api";
 import { getSessionText, setSessionText } from "../utils/session";
-import { UsersDialog } from "./UsersDialog";
+import { User, UsersDialog } from "./UsersDialog";
 import { getCursorPosition, placeCaretAtEnd } from "../utils/dom";
 
 export const Editor = () => {
@@ -11,7 +11,7 @@ export const Editor = () => {
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const [isOpen, setIsOpen] = useState(false);
   const [searchPhrase, setSearchPhrase] = useState("");
-  const [currentNoteId, setCurrentNoteId] = useState(1)
+  const [currentNoteId, setCurrentNoteId] = useState(0);
 
   // initialize the editor
   useEffect(() => {
@@ -24,10 +24,12 @@ export const Editor = () => {
   }, []);
 
   const handleChange = debounce(() => {
-    const editor = editorRef.current as HTMLDivElement;
-    const text = editor.innerText;
-    setSessionText(text);
-    postNote(currentNoteId, text);
+    const editor = editorRef.current;
+    if (editor) {
+      const text = editor.innerText;
+      setSessionText(text);
+      void putNote(currentNoteId, text);
+    }
   }, 1000);
 
   const handleKeyPress = (event: KeyboardEvent) => {
@@ -75,27 +77,32 @@ export const Editor = () => {
     };
   }, [handleChange]);
 
-  const handleUserClick = (username: string) => {
+  const handleUserClick = (user: User) => {
     const editor = editorRef.current;
     if (editor) {
-      editor.innerHTML = editor.innerHTML.replace(`@${searchPhrase}`, `<a href="https//google.com/${username}">${username}</a>`);
+      editor.innerHTML = editor.innerHTML.replace(
+        `@${searchPhrase}`,
+        `<a href="https//google.com/${user.username}">${user.first_name} ${user.last_name}</a>`
+      );
       setSearchPhrase("");
       setIsOpen(false);
     }
   };
 
   const sendNote = async () => {
-    const editor = editorRef.current
+    const editor = editorRef.current;
     if (editor) {
-      await postNote(currentNoteId, editor.innerText)
-      setCurrentNoteId((prev) => prev + 1)
+      await postNote(editor.innerText);
+      setCurrentNoteId((prev) => prev + 1);
     }
-  }
+  };
 
   return (
     <>
       <div className="editor" contentEditable ref={editorRef} />
-      <button className="sendButton" onClick={sendNote}>Send</button>
+      <button className="sendButton" onClick={sendNote}>
+        Send
+      </button>
       <UsersDialog
         ref={dialogRef}
         isOpen={isOpen}

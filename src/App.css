@@ -18,7 +18,6 @@
 .usersDialog {
   background-color: #fff;
   border: 1px solid #ccc;
-  
   border-radius: 0.5rem;
   z-index: 10;
   position: absolute;
@@ -44,7 +43,32 @@
   }
 }
 
+@media (prefers-color-scheme: dark) {
+  .usersDialog {
+    background-color: #444;
+  }
+  
+  .user {
+    color: white;
+    background-color: #222;
+
+    &:focus {
+      background-color: #333;
+    }
+
+    &:hover {
+      background-color: #333;
+    }
+  }
+}
+
 .sendButton {
   margin-top: 10px;
 }
+
+.loading {
+  color: #ccc;
+  margin: 10px 0;
+}
+
 

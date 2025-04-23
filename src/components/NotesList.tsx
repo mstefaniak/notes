@@ -1,17 +1,19 @@
-import { useGetNotes } from "../hooks/useGetNotes"
+import { useGetNotes } from "../hooks/useGetNotes";
 
 export const NotesList = () => {
-  const { notes, isLoading } = useGetNotes()
+  const { notes, isLoading } = useGetNotes();
 
   if (isLoading) {
-    return <div>Loading...</div>
+    return <div className="loading">Loading...</div>;
   }
-
-  return <div>
-    {notes.map((note) => (
-      <div key={note.id}>
-        <div>{note.body}</div>
-      </div>
-    ))}
-  </div>
-}
+  console.log(notes);
+  return (
+    <div className="notesList">
+      {notes.map((note) => (
+        <div key={note.id}>
+          <p>{note.body}</p>
+        </div>
+      ))}
+    </div>
+  );
+};

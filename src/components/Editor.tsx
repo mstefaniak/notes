@@ -1,17 +1,21 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { debounce } from "../utils/debounce";
-import { postNote, putNote } from "../utils/api";
+import { postNote } from "../utils/api";
 import { getSessionText, setSessionText } from "../utils/session";
 import { UsersDialog } from "./UsersDialog";
 import { getCursorPosition, placeCaretAtEnd } from "../utils/dom";
-import { User } from "../types";
+import { Note, User } from "../types";
 
-export const Editor = () => {
+type Props = {
+  currentNote: Note | undefined;
+  onNoteAdded: (id: number) => void;
+};
+
+export const Editor = ({ onNoteAdded }: Props) => {
   const editorRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const [isOpen, setIsOpen] = useState(false);
   const [searchPhrase, setSearchPhrase] = useState("");
-  const [currentNoteId, setCurrentNoteId] = useState(0);
 
   // initialize the editor
   useEffect(() => {
@@ -28,8 +32,8 @@ export const Editor = () => {
       const editor = editorRef.current;
       if (editor) {
         const text = editor.innerText;
+        console.log("internally saved");
         setSessionText(text);
-        void putNote(currentNoteId, text);
       }
     }, 2000),
     []
@@ -95,8 +99,9 @@ export const Editor = () => {
   const sendNote = async () => {
     const editor = editorRef.current;
     if (editor) {
-      await postNote(editor.innerText);
-      setCurrentNoteId((prev) => prev + 1);
+      const noteId = await postNote(editor.innerText);
+      onNoteAdded(noteId);
+      editor.innerText = "";
     }
   };
 

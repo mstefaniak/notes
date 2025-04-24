@@ -6,13 +6,14 @@ const baseUrl = 'https://challenge.surfe.com/'
 const sessionUrl = `${baseUrl}${sessionId}/`
 const headers = {
   'Access-Control-Allow-Origin': '*',
+  'Content-Type': 'application/json',
 }
 
 const sanitizeText = (text: string) => {
   return text.replace(/<[^>]*>?/g, '')
 }
 
-export const postNote = async (text: string): Promise<Response> => {
+export const postNote = async (text: string): Promise<number> => {
   const response = await fetch(`${sessionUrl}notes`, {
     method: 'POST',
     body: JSON.stringify({ body: sanitizeText(text) }),
@@ -23,7 +24,8 @@ export const postNote = async (text: string): Promise<Response> => {
     throw new Error('Failed to add a note')
   }
 
-  return response
+  const data = await response.json()
+  return data.id
 }
 
 export const getNotes = async (): Promise<Note[]> => {

@@ -1,12 +1,15 @@
-import { useGetNotes } from "../hooks/useGetNotes";
+import { Note } from "../types";
 
-export const NotesList = () => {
-  const { notes, isLoading } = useGetNotes();
+type Props = {
+  notes: Note[];
+  isLoading: boolean;
+};
 
+export const NotesList = ({ notes, isLoading }: Props) => {
   if (isLoading) {
     return <div className="loading">Loading...</div>;
   }
-  console.log(notes);
+
   return (
     <div className="notesList">
       {notes.map((note) => (

@@ -3,7 +3,13 @@
 - create simple notes
 - save notes automatically when user stops writing
 - uses session storage to keep the data until the browser/tab gets closed
+- GET session notes from external server
+- POST new notes to the external server
 - handles mentions
+
+# TODO
+
+- implement markdown syntax for mentions
 
 ### Prerequisites
 

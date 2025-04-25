@@ -6,7 +6,7 @@ export const useGetNotes = () => {
   const [notes, setNotes] = useState<Note[]>([])
   const [isLoading, setIsLoading] = useState(false)
 
-  const refetch = useCallback(() => {
+  const fetchNotes = useCallback(() => {
     setIsLoading(true)
     getNotes().then((notes) => {
       setNotes(notes)
@@ -14,12 +14,12 @@ export const useGetNotes = () => {
   }, [])
 
   useEffect(() => {
-    refetch()
-  }, [refetch])
+    fetchNotes()
+  }, [fetchNotes])
 
   return {
     notes,
     isLoading,
-    refetch,
+    refetch:fetchNotes,
   }
 }
